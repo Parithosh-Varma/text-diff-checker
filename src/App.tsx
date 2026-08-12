@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 
 type DiffType = 'equal' | 'added' | 'removed'
 
@@ -117,6 +117,32 @@ function App() {
     removed: countChanged(result.removed),
   }
   const identical = hasContent && stats.added === 0 && stats.removed === 0
+
+  const handleKeyboard = useCallback((e: KeyboardEvent) => {
+    // Ctrl/Cmd + 1 to focus first textarea
+    if ((e.ctrlKey || e.metaKey) && e.key === '1') {
+      e.preventDefault()
+      const textareas = document.querySelectorAll('textarea')
+      if (textareas[0]) textareas[0].focus()
+    }
+    // Ctrl/Cmd + 2 to focus second textarea
+    if ((e.ctrlKey || e.metaKey) && e.key === '2') {
+      e.preventDefault()
+      const textareas = document.querySelectorAll('textarea')
+      if (textareas[1]) textareas[1].focus()
+    }
+    // Ctrl/Cmd + S to swap texts
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault()
+      setTextA(textB)
+      setTextB(textA)
+    }
+  }, [textA, textB])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyboard)
+    return () => window.removeEventListener('keydown', handleKeyboard)
+  }, [handleKeyboard])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center transition-colors duration-300">
